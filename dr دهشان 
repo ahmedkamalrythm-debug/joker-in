@@ -1,0 +1,626 @@
+import { useState } from "react";
+
+const days = [
+  {
+    day: 1, theme: "التعريف والثقة",
+    topic: "من أنا؟ رحلتي في طب الجهاز الهضمي",
+    hook: "🩺 10 سنوات وآلاف المرضى — وهذا ما تعلمته عن أمعائك",
+    format: "فيديو", time: "7 مساءً", viral: 95,
+    tip: "أضف مقطع خلف الكواليس من عيادتك",
+    content: "قدّم نفسك بشكل إنساني: من أين بدأت؟ ما الذي دفعك لتخصص الجهاز الهضمي؟ اذكر لحظة أثّرت فيك مع مريض. أظهر شهاداتك ومؤتمراتك بشكل عابر لا مباشر.",
+    steps: ["ابدأ بـ 30 ثانية تقديم شخصي بكاميرا أمامية", "أضف مقطع من داخل العيادة أو غرفة العمليات", "اختم بسؤال: 'ما أكثر سؤال تريد أن تسألني؟'"],
+    cta: "📌 اتبعني لتتعلم كل شيء عن جهازك الهضمي مجاناً",
+    keywords: ["طبيب هضمية", "أمراض الجهاز الهضمي", "استشاري"],
+    platform: "إنستغرام + تيك توك"
+  },
+  {
+    day: 2, theme: "تثقيف",
+    topic: "5 أعراض لا تتجاهلها في القولون",
+    hook: "⚠️ ألم في البطن؟ هذه الأعراض الخمسة تستدعي طبيباً فوراً",
+    format: "كاروسيل", time: "12 ظهراً", viral: 92,
+    tip: "اجعل كل شريحة سؤالاً يحفّز التعليق",
+    content: "الشريحة 1: الهوك. الشرائح 2-6: كل عرض في شريحة مستقلة مع رسم بياني. الشريحة 7: متى تزور الطبيب فوراً. الشريحة 8: CTA.",
+    steps: ["اذكر: دم في البراز، فقدان وزن غير مبرر، ألم ليلي، إمساك مفاجئ، انتفاخ مستمر", "اجعل الألوان تعبّر عن الخطورة: أحمر للطوارئ، أصفر للمراقبة", "اطلب من القارئ حفظ المنشور"],
+    cta: "💾 احفظ هذا المنشور — قد ينقذ حياتك أو حياة شخص تحبه",
+    keywords: ["أعراض القولون", "صحة الجهاز الهضمي", "علامات تحذيرية"],
+    platform: "إنستغرام + لينكدإن"
+  },
+  {
+    day: 3, theme: "خرافة vs حقيقة",
+    topic: "هل القهوة تضر المعدة؟",
+    hook: "☕ الحقيقة التي لا يخبرك بها أحد عن القهوة والمعدة",
+    format: "ريلز", time: "6 مساءً", viral: 98,
+    tip: "ابدأ بـ 'خطأ!' ثم فاجئهم بالحقيقة العلمية",
+    content: "ابدأ بالخرافة الشائعة (القهوة تسبب قرحة)، ثم افصل بين الحموضة العابرة والضرر الفعلي. اذكر الفئات التي يجب أن تتجنبها فعلاً (GERD، قرحة نشطة)، وخاتمة للأغلبية: القهوة المعتدلة آمنة.",
+    steps: ["صوّر 15-30 ثانية في المطبخ أو المكتب بكوب قهوة", "استخدم text overlay واضح لكل نقطة", "اختم بـ: 'من يجب أن يتجنب القهوة فعلاً؟'"],
+    cta: "☕ شارك هذا مع محبي القهوة في حياتك",
+    keywords: ["القهوة والمعدة", "حموضة المعدة", "خرافات طبية"],
+    platform: "تيك توك + إنستغرام ريلز"
+  },
+  {
+    day: 4, theme: "نصيحة يومية",
+    topic: "أفضل الأطعمة لصحة الجهاز الهضمي",
+    hook: "🥦 أكل هذه الأطعمة الـ7 كل أسبوع = أمعاء صحية",
+    format: "كاروسيل", time: "8 صباحاً", viral: 88,
+    tip: "استخدم تصميم قائمة تسوق — يزيد الحفظ 3 أضعاف",
+    content: "الزبادي، الموز، الشوفان، العدس، الخضروات الورقية، الزيت الزيتون، الكمثرى. لكل طعام: الفائدة الأساسية + طريقة تناول + كمية مقترحة.",
+    steps: ["صمّم بخلفية بيضاء نظيفة كقائمة تسوق", "أضف إيموجي لكل طعام", "الشريحة الأخيرة: جدول أسبوعي جاهز للطباعة"],
+    cta: "📋 احفظ القائمة قبل رحلتك القادمة للسوق",
+    keywords: ["أطعمة صحية", "صحة الأمعاء", "تغذية علاجية"],
+    platform: "إنستغرام + فيسبوك"
+  },
+  {
+    day: 5, theme: "قصة مريض",
+    topic: "كيف تعافى مريضي من القولون العصبي",
+    hook: "😔 جاءني يبكي... وخرج بابتسامة بعد 3 أشهر",
+    format: "ثريد", time: "9 مساءً", viral: 90,
+    tip: "احكِ القصة بالتسلسل: المشكلة → المعاناة → الحل → النتيجة",
+    content: "تويت 1: الهوك العاطفي. تويت 2-3: وصف المعاناة بدون اسم. تويت 4-5: التشخيص وخطة العلاج. تويت 6: النتيجة بعد 3 أشهر. تويت 7: الدرس المستفاد للجميع.",
+    steps: ["احصل على إذن المريض مسبقاً", "استخدم أرقاماً محددة: نام 2 ساعة فقط، فقد 8 كيلو", "اختم بسؤال للمتابعين: 'هل تعاني من نفس الأعراض؟'"],
+    cta: "🔁 أعد تغريد هذا — قد يصف حالة شخص تعرفه",
+    keywords: ["القولون العصبي", "IBS", "قصة نجاح طبية"],
+    platform: "تويتر/X + لينكدإن"
+  },
+  {
+    day: 6, theme: "تفاعلي",
+    topic: "جلسة أسئلة مفتوحة عن الجهاز الهضمي",
+    hook: "📩 ساعة كاملة — اسألني أي شيء عن جهازك الهضمي",
+    format: "لايف / ستوري", time: "7 مساءً", viral: 85,
+    tip: "جمّع الأسئلة مسبقاً 24 ساعة قبل الجلسة عبر ستوري",
+    content: "في الستوري: 'اكتب سؤالك' + 'موضوع اليوم: الجهاز الهضمي'. في اللايف: ابدأ بأكثر 3 أسئلة تكراراً، ثم اقبل أسئلة مباشرة.",
+    steps: ["أعلن عن الجلسة قبل 48 ساعة", "رتّب الأسئلة من الأبسط للأعمق", "احفظ اللايف وأعد نشره كريلز مقتطعة"],
+    cta: "📌 اضغط تذكيري حتى لا تفوت الجلسة",
+    keywords: ["أسئلة طبية", "لايف صحي", "استشارة مجانية"],
+    platform: "إنستغرام لايف"
+  },
+  {
+    day: 7, theme: "إحصائية صادمة",
+    topic: "نسبة الإصابة بسرطان القولون",
+    hook: "📊 1 من كل 25 شخص سيصاب بسرطان القولون — هذا ما يحميك",
+    format: "ريلز", time: "6 مساءً", viral: 96,
+    tip: "ابدأ بالرقم الصادم مباشرة في أول ثانية — لا مقدمات",
+    content: "ثانية 1-3: الإحصائية. ثانية 4-10: من هم الأكثر عرضة؟ ثانية 11-20: 3 خطوات للوقاية. ثانية 21-30: متى تبدأ الفحص المبكر؟",
+    steps: ["استخدم خلفية حمراء مع الإحصائية لجذب الانتباه", "أضف مصدر الإحصائية: WHO أو دراسة معتمدة", "اختم بـ: 'هذا الفيديو قد ينقذ حياتك'"],
+    cta: "🔔 شارك مع عائلتك — الكشف المبكر ينقذ الحياة",
+    keywords: ["سرطان القولون", "الكشف المبكر", "الوقاية من السرطان"],
+    platform: "تيك توك + إنستغرام + يوتيوب شورتس"
+  },
+  {
+    day: 8, theme: "روتين الصباح",
+    topic: "ماذا يفعل طبيب هضمية أول الصباح؟",
+    hook: "🌅 روتين الصباح الذي يحمي جهازي الهضمي — طبيب يشرح",
+    format: "فيديو", time: "7 صباحاً", viral: 89,
+    tip: "صوّر POV بكاميرا أمامية أثناء تحضير الفطور الفعلي",
+    content: "أول كوب ماء دافئ + ليمون. فطور غني بالألياف. 5 دقائق مشي خفيف. تجنب القهوة على معدة فارغة. الإفطار في نفس الوقت يومياً لتنظيم حركة الأمعاء.",
+    steps: ["صوّر في المطبخ الحقيقي وليس الاستوديو", "أضف نصوص توضيحية على كل نشاط", "المدة المثالية: 45-60 ثانية"],
+    cta: "🌅 أي عادة من هذه ستبدأ بها غداً؟ اكتب في التعليقات",
+    keywords: ["روتين صحي", "صحة الجهاز الهضمي", "عادات صباحية"],
+    platform: "إنستغرام + تيك توك"
+  },
+  {
+    day: 9, theme: "تثقيف",
+    topic: "ما هو تنظير القولون ولماذا لا تخافه؟",
+    hook: "😰 خايف من المنظار؟ هذا ما يحدث فعلاً خلال 20 دقيقة",
+    format: "كاروسيل", time: "12 ظهراً", viral: 91,
+    tip: "استخدم رسوماً توضيحية بسيطة بدلاً من الصور الطبية المخيفة",
+    content: "شريحة 1: الهوك. شريحة 2: ما هو تنظير القولون؟ شريحة 3: من يحتاجه؟ شريحة 4: التحضير قبل 24 ساعة. شريحة 5: ماذا يحدث أثناء الإجراء؟ شريحة 6: بعد الإجراء. شريحة 7: هل هو مؤلم؟ شريحة 8: CTA.",
+    steps: ["استخدم رسوم إنفوغرافيك وليس صور طبية مباشرة", "أضف مقارنة: 'مثل تنظيف بالكاميرا'", "طمئن بالأرقام: 95% من الحالات لا توجد مضاعفات"],
+    cta: "💬 هل لديك سؤال عن المنظار؟ اكتبه في التعليقات",
+    keywords: ["تنظير القولون", "منظار الجهاز الهضمي", "فحص القولون"],
+    platform: "إنستغرام + فيسبوك"
+  },
+  {
+    day: 10, theme: "خرافة vs حقيقة",
+    topic: "الحرقة = قرحة؟",
+    hook: "🔥 حرقة المعدة ≠ قرحة — الفرق الذي يغير كل شيء",
+    format: "ريلز", time: "6 مساءً", viral: 93,
+    tip: "استخدم مقارنة بصرية: خريطة على الجسم توضح مكان كل ألم",
+    content: "الحرقة: شعور عابر بعد الأكل، سببها ارتجاع الحامض. القرحة: ألم مستمر محدد المكان، يزداد ليلاً. الفرق في: التوقيت، الشدة، الأسباب، العلاج.",
+    steps: ["ابدأ بسؤال: 'تحس بحرقة بعد الأكل؟'", "أضف رسم بياني بسيط للمعدة", "اذكر متى يكون كل منهما طارئاً طبياً"],
+    cta: "📌 احفظ هذا — كثيرون يخلطون بينهما",
+    keywords: ["حرقة المعدة", "قرحة المعدة", "GERD", "ارتجاع المريء"],
+    platform: "تيك توك + إنستغرام"
+  },
+  {
+    day: 11, theme: "نصيحة",
+    topic: "كيف تحسّن هضمك في 7 أيام",
+    hook: "✅ جرّب هذا لمدة أسبوع واحد — هضمك سيتغير",
+    format: "كاروسيل", time: "8 صباحاً", viral: 87,
+    tip: "اجعله تحدياً وطلب من المتابعين النشر بهاشتاق خاص",
+    content: "يوم 1: ابدأ يومك بكوب ماء. يوم 2: مشية 10 دقائق. يوم 3: وجبة غنية بالألياف. يوم 4: تجنب الأكل قبل النوم. يوم 5: خفّف السكر. يوم 6: تنفس عميق وتأمل. يوم 7: قيّم التحسن.",
+    steps: ["صمّم شريحة لكل يوم بلون مختلف", "أضف مؤشر تقدم في أعلى كل شريحة", "الشريحة الأخيرة: 'شارك نتيجتك معنا'"],
+    cta: "📲 شارك هذا التحدي مع شخص يحتاجه",
+    keywords: ["تحسين الهضم", "تحدي صحي", "أسبوع صحة الأمعاء"],
+    platform: "إنستغرام + واتساب"
+  },
+  {
+    day: 12, theme: "وراء الكواليس",
+    topic: "يوم كامل في عيادة الجهاز الهضمي",
+    hook: "🏥 يوم كامل في عيادتي — ماذا يحدث فعلاً؟",
+    format: "ريلز", time: "5 مساءً", viral: 86,
+    tip: "أضف لحظات إنسانية حقيقية — لحظة ارتياح مريض تُحدث فارقاً",
+    content: "الوصول صباحاً ومراجعة الملفات. استقبال أول مريض. شرح نتيجة منظار. لحظة طمأنينة مع عائلة. قهوة بين الحالات. المغادرة بعد إجراء طارئ.",
+    steps: ["احصل على موافقة العيادة والمرضى مسبقاً", "اجعل التصوير طبيعياً وغير مُعدّ", "أضف تعليق صوتي يشرح ما يحدث في كل مشهد"],
+    cta: "💬 ما أكثر شيء فاجأك في هذا الفيديو؟",
+    keywords: ["يوم طبيب", "عيادة هضمية", "وراء الكواليس الطبية"],
+    platform: "تيك توك + إنستغرام"
+  },
+  {
+    day: 13, theme: "إحصائية",
+    topic: "ارتباط التوتر بالأمراض الهضمية",
+    hook: "🧠 90% من مشاكل الأمعاء سببها الرأس — العلم يقول ذلك",
+    format: "ثريد", time: "8 مساءً", viral: 94,
+    tip: "اذكر دراسة علمية بالاسم والسنة لتعزيز المصداقية",
+    content: "محور الدماغ والأمعاء (Gut-Brain Axis). كيف يؤثر التوتر على حركة الأمعاء؟ أمراض مرتبطة: IBS، GERD، الإسهال المزمن. أدلة علمية من دراسات حديثة. 5 تقنيات لتهدئة الأمعاء عبر الدماغ.",
+    steps: ["ابدأ بالإحصائية الصادمة كتويت وحيد", "اشرح الآلية العلمية بلغة بسيطة في 3 تويتات", "اختم بنصائح عملية قابلة للتطبيق فوراً"],
+    cta: "🔁 شارك هذا مع شخص يعاني من ضغوط نفسية",
+    keywords: ["Gut Brain Axis", "التوتر والهضم", "الصحة النفسية والجسدية"],
+    platform: "تويتر/X + لينكدإن"
+  },
+  {
+    day: 14, theme: "تفاعلي",
+    topic: "استفتاء: ما أكثر أعراضك شيوعاً؟",
+    hook: "📊 أيهما يزعجك أكثر؟ صوّت الآن وسأشرح لك السبب",
+    format: "ستوري / بوست", time: "7 مساءً", viral: 82,
+    tip: "رد على كل تعليق بنصيحة مخصصة من سطرين فقط",
+    content: "الخيارات: انتفاخ | حرقة | إمساك | إسهال. بعد 24 ساعة انشر ريلز يشرح العرض الفائز بالتصويت.",
+    steps: ["استخدم خاصية Poll في الإنستغرام ستوري", "في اليوم التالي شارك النتائج علناً", "حوّل النتائج إلى محتوى تثقيفي مخصص"],
+    cta: "📊 صوّت الآن — وسأخصص منشوراً للعرض الأكثر انتشاراً",
+    keywords: ["استطلاع صحي", "أعراض الجهاز الهضمي", "تفاعل طبي"],
+    platform: "إنستغرام ستوري"
+  },
+  {
+    day: 15, theme: "تثقيف",
+    topic: "ما هو الغلوتين ومن يضره فعلاً؟",
+    hook: "🌾 الغلوتين: حقيقة الحساسية أم مجرد موضة؟ طبيب يوضح",
+    format: "كاروسيل", time: "12 ظهراً", viral: 90,
+    tip: "فرّق بين مرض السيلياك والحساسية والتحسس — ثلاثة أشياء مختلفة تماماً",
+    content: "ما هو الغلوتين؟ الفرق بين مرض السيلياك (مناعي) والحساسية (هضمية) والتحسس. الأطعمة التي تحتوي على غلوتين. من يحتاج فعلاً للحمية الخالية من الغلوتين؟ هل الغلوتين ضار للجميع؟",
+    steps: ["استخدم جدول مقارنة بصري بين الأنواع الثلاثة", "أضف قائمة بأطعمة الغلوتين الخفية المفاجئة", "اذكر نسبة الإصابة الحقيقية بالسيلياك: 1% فقط"],
+    cta: "💬 هل تتجنب الغلوتين؟ لماذا؟ اكتب في التعليقات",
+    keywords: ["الغلوتين", "مرض السيلياك", "حساسية القمح", "Gluten Free"],
+    platform: "إنستغرام + فيسبوك"
+  },
+  {
+    day: 16, theme: "خرافة vs حقيقة",
+    topic: "البروبيوتيك = علاج لكل شيء؟",
+    hook: "💊 تأكل بروبيوتيك كل يوم؟ هذا ما لا يخبرك به أحد",
+    format: "ريلز", time: "6 مساءً", viral: 92,
+    tip: "كن صريحاً في نقد التسويق المبالغ فيه — الجرأة تبني الثقة",
+    content: "البروبيوتيك مفيد لحالات محددة: بعد المضادات الحيوية، IBS، إسهال السفر. ليس علاجاً عاماً لكل شيء. الفرق بين العلامات التجارية. متى تأخذه بروشتة؟ الأطعمة الطبيعية الغنية بالبروبيوتيك.",
+    steps: ["ابدأ بصورة منتج بروبيوتيك شائع وسؤال مباشر", "اسأل: 'تعرف ليش تاخذه؟'", "اذكر 3 حالات يفيد فيها و3 حالات لا يفيد فيها"],
+    cta: "💊 شارك هذا مع كل من يأخذ مكملات هضمية",
+    keywords: ["بروبيوتيك", "مكملات هضمية", "بكتيريا نافعة", "Probiotics"],
+    platform: "تيك توك + إنستغرام"
+  },
+  {
+    day: 17, theme: "نصيحة عملية",
+    topic: "كيف تقرأ نتائج تحليل البراز؟",
+    hook: "📋 جاءك تقرير تحليل البراز؟ هذا ما يعنيه كل رقم",
+    format: "كاروسيل", time: "8 صباحاً", viral: 88,
+    tip: "ضع صورة تقرير مبسطة مُعدّلة مع تسليط الضوء بألوان",
+    content: "تحليل البراز الكامل: pH، دم خفي، بكتيريا، طفيليات، كريات بيضاء. ماذا يعني كل مؤشر؟ القيم الطبيعية vs. غير الطبيعية. متى تحتاج تحليل البراز؟ ماذا تفعل بعد النتيجة؟",
+    steps: ["صمّم إنفوغرافيك لنموذج تقرير مبسط ومؤلوف", "استخدم اللون الأخضر للطبيعي والأحمر لغير الطبيعي", "أضف تنبيه واضح: 'لا تفسّر نتائجك بدون طبيب'"],
+    cta: "📌 احفظ هذا المنشور قبل موعدك القادم مع الطبيب",
+    keywords: ["تحليل البراز", "نتائج التحاليل", "Stool Analysis"],
+    platform: "إنستغرام + فيسبوك"
+  },
+  {
+    day: 18, theme: "قصة نجاح",
+    topic: "حالة التهاب الكبد الوبائي B",
+    hook: "💪 'قالوا لي لا علاج لك' — وهذا ما حدث بعد سنة كاملة",
+    format: "فيديو", time: "9 مساءً", viral: 91,
+    tip: "احكِ القصة بتسلسل درامي: المشكلة ← اليأس ← التحول ← الانتصار",
+    content: "المريض: 35 عاماً، اكتشف بالصدفة. الصدمة الأولى والخوف. خطة العلاج المكثف. التحديات أثناء العلاج. النتيجة بعد 12 شهراً. رسالة للمصابين بنفس الحالة.",
+    steps: ["استخدم صوت المريض المباشر إن أمكن بعد إذنه", "أضف مؤشرات المختبر قبل وبعد بشكل مرئي", "لا تذكر اسم دواء محدد بشكل ترويجي"],
+    cta: "💌 إذا تعرف شخصاً مصاباً بالتهاب الكبد B — أرسل له هذا الفيديو",
+    keywords: ["التهاب الكبد B", "Hepatitis B", "قصة شفاء", "أمراض الكبد"],
+    platform: "يوتيوب + إنستغرام + فيسبوك"
+  },
+  {
+    day: 19, theme: "تفاعلي",
+    topic: "شخّص حالتك — اكتب عرضك",
+    hook: "📝 اكتب في التعليقات: عمرك + أكثر عرض يزعجك",
+    format: "بوست", time: "7 مساءً", viral: 89,
+    tip: "رد على 30+ تعليق بنصيحة مخصصة — التفاعل يضاعف الانتشار 4 أضعاف",
+    content: "نص المنشور: 'سأرد على كل تعليق بنصيحة طبية مخصصة مجاناً. فقط اكتب: عمرك + أكثر عرض يزعجك في الجهاز الهضمي.'",
+    steps: ["خصص ساعتين فعلياً للرد على التعليقات", "حوّل أفضل الردود إلى محتوى مستقل لاحقاً", "أضف تقييد واضح: 'هذا للتثقيف وليس بديلاً عن الطبيب'"],
+    cta: "👇 اكتب عرضك في التعليقات الآن",
+    keywords: ["استشارة مجانية", "أعراض هضمية", "سؤال طبي"],
+    platform: "إنستغرام + فيسبوك"
+  },
+  {
+    day: 20, theme: "تثقيف",
+    topic: "الفرق بين IBS و IBD",
+    hook: "❓ IBS أم IBD؟ 80% من الناس لا يعرفون الفرق — اكتشف أيهما لديك",
+    format: "كاروسيل", time: "12 ظهراً", viral: 93,
+    tip: "جدول مقارنة بصري في آخر شريحة مع اختبار سريع",
+    content: "IBS: متلازمة القولون العصبي — وظيفي، لا التهاب. IBD: مرض الكرون والتهاب القولون التقرحي — التهاب حقيقي. الفرق في: الأعراض، التشخيص، العلاج، الخطورة. هل يتحول IBS إلى IBD؟",
+    steps: ["استخدم جدول مقارنة واضح بعمودين", "أضف اختبار سريع: 4 أسئلة للتمييز الأولي", "أكد: لا يمكن التشخيص الذاتي — يلزم طبيب"],
+    cta: "💾 احفظ وشارك مع كل من يعاني من مشاكل القولون",
+    keywords: ["IBS", "IBD", "القولون العصبي", "مرض كرون", "التهاب القولون"],
+    platform: "إنستغرام + لينكدإن"
+  },
+  {
+    day: 21, theme: "وراء الكواليس",
+    topic: "كيف أستعد لمؤتمر طبي دولي؟",
+    hook: "✈️ غداً في مؤتمر طبي دولي — هذا ما سأتعلمه لأجلك",
+    format: "ريلز", time: "6 مساءً", viral: 84,
+    tip: "أنشر update يومياً من المؤتمر — يزيد التفاعل بشكل كبير",
+    content: "حقيبة السفر الطبية. برنامج المؤتمر. أبرز المحاضرات المتوقعة. لقاءات مع أطباء عالميين. أحدث أبحاث في الجهاز الهضمي. ماذا ستطبق في عيادتك؟",
+    steps: ["صوّر اللحظات الحقيقية وليس الرسمية فقط", "شارك slide واحدة مثيرة من كل محاضرة مهمة", "اختم كل يوم بـ: 'هذا أهم شيء تعلمته اليوم'"],
+    cta: "🔔 فعّل التنبيهات حتى لا تفوتك تحديثات المؤتمر",
+    keywords: ["مؤتمر طبي", "أبحاث الجهاز الهضمي", "تطوير طبي"],
+    platform: "إنستغرام ستوري + ريلز"
+  },
+  {
+    day: 22, theme: "خرافة",
+    topic: "الماء الساخن يحرق الدهون في المعدة؟",
+    hook: "🌡️ الماء الساخن = حرق دهون؟ الحقيقة المحرجة التي لا أحد يقولها",
+    format: "ريلز", time: "6 مساءً", viral: 97,
+    tip: "ابدأ بـ 'هذا كذب طبي شائع' — مباشرة في الثانية الأولى بلا مقدمات",
+    content: "الحقيقة: جسم الإنسان يضبط حرارته تلقائياً. الماء الدافئ يساعد الهضم فعلاً لكن ليس لحرق الدهون. الطريقة الوحيدة لحرق الدهون علمياً. ما الذي يفعله الماء الدافئ فعلاً للجهاز الهضمي؟",
+    steps: ["ابدأ بجملة صادمة مباشرة في الفريم الأول", "اشرح الآلية البيولوجية ببساطة دون تعقيد", "اختم بالنصيحة الحقيقية للوزن الصحي المبنية على العلم"],
+    cta: "📤 شارك هذا مع كل من ينصح بالماء الساخن للتخسيس",
+    keywords: ["خرافات التخسيس", "الماء الساخن", "حرق الدهون", "معلومات طبية خاطئة"],
+    platform: "تيك توك + إنستغرام + يوتيوب شورتس"
+  },
+  {
+    day: 23, theme: "نصيحة",
+    topic: "أطعمة تسبب الانتفاخ — تجنبها",
+    hook: "🫃 بطنك منتفخة دائماً؟ هذه الأطعمة الستة هي السبب",
+    format: "كاروسيل", time: "8 صباحاً", viral: 90,
+    tip: "أضف بديلاً صحياً لكل طعام — يجعل المحتوى إيجابياً وقابلاً للتطبيق",
+    content: "الأطعمة: البقوليات، الملفوف والقرنبيط، المشروبات الغازية، الألبان للحساسين، الثوم والبصل النيئ، الفواكه الغنية بالفركتوز. مع بديل لكل طعام وطريقة طبخ تقلل الانتفاخ.",
+    steps: ["شريحة لكل طعام: الطعام + السبب العلمي + البديل الصحي", "أضف نجمة تقييم لشدة الانتفاخ: خفيف / متوسط / شديد", "الشريحة الأخيرة: جدول تبديل سريع قابل للحفظ"],
+    cta: "🛒 احفظ هذا قبل رحلة التسوق القادمة",
+    keywords: ["انتفاخ البطن", "أطعمة تسبب الغازات", "صحة الجهاز الهضمي"],
+    platform: "إنستغرام + فيسبوك + بينتريست"
+  },
+  {
+    day: 24, theme: "تفاعلي",
+    topic: "اختبار: هل أمعاؤك صحية؟",
+    hook: "🎯 4 أسئلة فقط تكشف صحة جهازك الهضمي — كم نقطة معك؟",
+    format: "كاروسيل تفاعلي", time: "7 مساءً", viral: 95,
+    tip: "اجعل آخر شريحة نتيجة شخصية واضحة + CTA للحجز",
+    content: "سؤال 1: كم مرة تتبرز أسبوعياً؟ سؤال 2: هل تعاني من انتفاخ بعد الأكل؟ سؤال 3: هل تنام جيداً بدون ألم؟ سؤال 4: ما مستوى توترك اليومي؟ النتائج: 0-1 = ممتاز، 2-3 = تحسينات مطلوبة، 4 = استشر طبيباً.",
+    steps: ["كل سؤال في شريحة مستقلة مع خيارين أو ثلاثة", "أضف تعليمات في البداية: 'احسب نقاطك وشاركها في التعليقات'", "آخر شريحة: نتيجة كل درجة بالتفصيل + رابط الحجز للمتابعة"],
+    cta: "📊 كم نقطة حصلت؟ اكتب رقمك في التعليقات",
+    keywords: ["اختبار صحة الأمعاء", "تقييم الجهاز الهضمي", "صحة الأمعاء"],
+    platform: "إنستغرام + فيسبوك"
+  },
+  {
+    day: 25, theme: "تثقيف",
+    topic: "تحليل الـ H. Pylori — متى تعمله؟",
+    hook: "🦠 بكتيريا المعدة H. Pylori: من يحتاج التحليل ومن لا يحتاجه؟",
+    format: "كاروسيل", time: "12 ظهراً", viral: 87,
+    tip: "وضّح الأعراض التي تستدعي التحليل — كثيرون يعملونه دون داعٍ حقيقي",
+    content: "ما هي بكتيريا H. Pylori وكيف تنتقل؟ أعراض الإصابة الواضحة والخفية. أنواع التحاليل: دم، نفس، براز، منظار. من يحتاج التحليل فعلاً؟ العلاج وأهمية إتمام الدواء كاملاً. هل تعود البكتيريا بعد العلاج؟",
+    steps: ["استخدم رسم توضيحي للمعدة مع البكتيريا", "أضف قائمة مقارنة: من يحتاج التحليل ومن لا يحتاجه", "اذكر نسبة الانتشار في المنطقة العربية تحديداً"],
+    cta: "💬 هل علاجت H. Pylori من قبل؟ شاركنا تجربتك",
+    keywords: ["H Pylori", "بكتيريا المعدة", "تحليل هيليكوباكتر", "قرحة المعدة"],
+    platform: "إنستغرام + فيسبوك"
+  },
+  {
+    day: 26, theme: "مقارنة",
+    topic: "الأكل البطيء vs السريع — تأثيره على الهضم",
+    hook: "🍽️ تأكل بسرعة؟ هذا ما يحدث لمعدتك خلال 30 دقيقة من الأكل",
+    format: "ريلز", time: "6 مساءً", viral: 91,
+    tip: "استخدم تجربة حية: كُل طعاماً بسرعة أمام الكاميرا ثم ببطء وقارن الإحساس",
+    content: "الأكل السريع: لا يعطي هرمون الشبع وقته (20 دقيقة)، يزيد الانتفاخ والغازات، يرفع خطر ارتجاع المريء. الأكل البطيء: مضغ أفضل = هضم أسهل، توازن هرموني، شبع بكميات أقل.",
+    steps: ["أضف مؤقت توضيحي أثناء الأكل أمام الكاميرا", "استخدم مقارنة بصرية جانب/جانب في نفس الإطار", "أضف النصيحة العلمية: 20 مضغة لكل لقمة كحد أدنى"],
+    cta: "🍽️ جرّب الأكل البطيء لأسبوع واحد وأخبرنا بالنتيجة",
+    keywords: ["الأكل البطيء", "عادات الأكل الصحية", "تحسين الهضم"],
+    platform: "تيك توك + إنستغرام"
+  },
+  {
+    day: 27, theme: "قصة شخصية",
+    topic: "أصعب حالة طبية واجهتها في مسيرتي",
+    hook: "😤 أصعب حالة في 10 سنوات من مسيرتي — وما تعلمته منها",
+    format: "فيديو", time: "9 مساءً", viral: 94,
+    tip: "الضعف الإنساني يبني الثقة أكثر من البطولة — لا تخفِ اللحظات الصعبة",
+    content: "وصف الحالة الصعبة دون كشف الهوية. الضغط النفسي الذي يشعر به الطبيب. القرار الصعب والمسؤولية. النتيجة وما تغيّر بعدها. الدرس الطبي والإنساني. كيف أثّرت على أسلوب عملك اليومي.",
+    steps: ["كن صادقاً وإنسانياً — ليس بطولياً فقط أمام الكاميرا", "أضف الدرس المستفاد بشكل واضح ومحدد", "اختم بشكر للمرضى الذين علّموك بصدق"],
+    cta: "💬 هل واجهت لحظة صعبة غيّرت نظرتك للصحة؟ شاركنا",
+    keywords: ["تجربة طبيب", "قصة طبية", "الجانب الإنساني للطب"],
+    platform: "يوتيوب + إنستغرام"
+  },
+  {
+    day: 28, theme: "تفاعلي",
+    topic: "ردود مباشرة على أسئلة الأسبوع",
+    hook: "🎤 جمعت أسئلتكم طوال الأسبوع — هذه الإجابات الصريحة",
+    format: "فيديو / ريلز", time: "7 مساءً", viral: 88,
+    tip: "رد على 10+ أسئلة في فيديو واحد بإيقاع سريع — سؤال كل 15-20 ثانية",
+    content: "اجمع أفضل 10 أسئلة من التعليقات والقصص طوال الأسبوع. رتّبها من الأكثر تكراراً للأقل. اجعل الإجابات واضحة ومركّزة بدون مطولات. ضع الأسئلة المفاجئة في النهاية.",
+    steps: ["أعلن عن جلسة الأسئلة قبل 48 ساعة لجمعها", "استخدم تصميم سؤال-جواب مرئي على الشاشة أثناء الفيديو", "احفظ الأسئلة غير المجابة كمحتوى لأسابيع قادمة"],
+    cta: "📩 هل لم يُجَب على سؤالك؟ اكتبه في التعليقات الآن",
+    keywords: ["أسئلة وأجوبة", "طبيب يجيب", "استشارة مجانية"],
+    platform: "إنستغرام + يوتيوب"
+  },
+  {
+    day: 29, theme: "إحصائية",
+    topic: "ارتباط النوم بصحة الأمعاء",
+    hook: "😴 تنام أقل من 6 ساعات؟ أمعاؤك في خطر حقيقي — الدراسة تقول",
+    format: "ثريد", time: "10 مساءً", viral: 89,
+    tip: "انشر وقت النوم الأمثل لصحة الأمعاء — معلومة نادراً ما تُذكر",
+    content: "الساعة البيولوجية والأمعاء. كيف يؤثر قلة النوم على البكتيريا النافعة؟ ارتفاع هرمون الكورتيزول وتأثيره على الهضم. دراسة حديثة عن النوم والميكروبيوم. 5 نصائح للنوم الصحي الداعم لصحة الأمعاء.",
+    steps: ["ابدأ بالإحصائية الصادمة عن قلة النوم كتويت منفرد", "اشرح الآلية العلمية بدون تعقيد أو مصطلحات صعبة", "أضف 5 نصائح عملية للنوم الأفضل قابلة للتطبيق فوراً"],
+    cta: "😴 هل تنام كافياً؟ كم ساعة تنام عادةً؟ اكتب في التعليقات",
+    keywords: ["النوم والهضم", "Gut Microbiome", "الساعة البيولوجية", "صحة الأمعاء"],
+    platform: "تويتر/X + لينكدإن + إنستغرام"
+  },
+  {
+    day: 30, theme: "إلهام + CTA",
+    topic: "رسالة لمتابعيّ بعد 30 يوماً من المحتوى المجاني",
+    hook: "🎉 30 يوماً — 30 معلومة مجانية — وهذا مجرد البداية",
+    format: "فيديو", time: "7 مساءً", viral: 96,
+    tip: "اشكر المتابعين بصدق، أعلن عن السلسلة القادمة، وأضف CTA للحجز",
+    content: "ملخص أبرز 5 معلومات من الشهر. شكر حقيقي وصادق للمتابعين. أبرز الأسئلة التي وصلته خلال الشهر. ما الذي سيأتي في الشهر القادم؟ إعلان عن خدمة أو سلسلة جديدة.",
+    steps: ["اجعل الفيديو عاطفياً وإنسانياً وليس إعلانياً ومباشراً", "أضف لقطات من أفضل محتوى الشهر كـ recap", "اختم بعبارة قوية وصادقة: 'صحتك أمانة — وأنا هنا معك'"],
+    cta: "🔗 احجز استشارتك الآن — رابط في البايو",
+    keywords: ["طبيب هضمية", "محتوى طبي", "استشارة طبية", "صحة الجهاز الهضمي"],
+    platform: "إنستغرام + يوتيوب + تيك توك"
+  },
+];
+
+const formatColors = {
+  "كاروسيل": "#3b82f6",
+  "ريلز": "#ec4899",
+  "فيديو": "#f59e0b",
+  "ثريد": "#10b981",
+  "لايف / ستوري": "#8b5cf6",
+  "ستوري / بوست": "#8b5cf6",
+  "بوست": "#6366f1",
+  "كاروسيل تفاعلي": "#06b6d4",
+  "فيديو / ريلز": "#f59e0b",
+};
+
+const formatIcons = {
+  "كاروسيل": "🎠",
+  "ريلز": "🎬",
+  "فيديو": "📹",
+  "ثريد": "🧵",
+  "لايف / ستوري": "🔴",
+  "ستوري / بوست": "📱",
+  "بوست": "📝",
+  "كاروسيل تفاعلي": "🎯",
+  "فيديو / ريلز": "🎬",
+};
+
+export default function ContentCalendar() {
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState("الكل");
+  const [tab, setTab] = useState("overview");
+
+  const formats = ["الكل", "كاروسيل", "ريلز", "فيديو", "ثريد"];
+  const filtered = filter === "الكل" ? days : days.filter(d => d.format.includes(filter));
+
+  return (
+    <div dir="rtl" style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #050510 0%, #0a0f1e 50%, #050510 100%)",
+      fontFamily: "'Cairo', 'Segoe UI', sans-serif",
+      color: "#e2e8f0",
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #2dd4bf44; border-radius: 10px; }
+        .day-card {
+          background: linear-gradient(135deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 16px;
+          padding: 14px;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .day-card:hover { transform: translateY(-4px); border-color: rgba(45,212,191,0.35); box-shadow: 0 12px 40px rgba(45,212,191,0.12); }
+        .day-card.active { border-color: #2dd4bf; box-shadow: 0 0 0 2px rgba(45,212,191,0.25); }
+        .viral-bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 10px; }
+        .viral-fill { height: 100%; border-radius: 2px; }
+        .filter-btn { padding: 7px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #64748b; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+        .filter-btn.active { background: linear-gradient(135deg, #2dd4bf, #0ea5e9); border-color: transparent; color: #050510; font-weight: 800; }
+        .filter-btn:hover:not(.active) { border-color: rgba(45,212,191,0.4); color: #2dd4bf; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: flex-start; justify-content: center; z-index: 1000; padding: 16px; backdrop-filter: blur(12px); overflow-y: auto; }
+        .modal { background: linear-gradient(160deg, #0f1729, #0a0f1e); border: 1px solid rgba(45,212,191,0.25); border-radius: 24px; padding: 24px; max-width: 560px; width: 100%; direction: rtl; box-shadow: 0 30px 80px rgba(0,0,0,0.7); margin: auto; }
+        .tab-btn { padding: 7px 12px; border-radius: 10px; border: none; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; transition: all 0.2s; flex: 1; }
+        .tab-btn.active { background: rgba(45,212,191,0.15); color: #2dd4bf; }
+        .tab-btn:not(.active) { background: transparent; color: #475569; }
+        .info-box { border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+        .step-item { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .step-num { min-width: 22px; height: 22px; background: linear-gradient(135deg, #2dd4bf, #0ea5e9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: #050510; flex-shrink: 0; }
+        .keyword-tag { display: inline-block; padding: 3px 10px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); border-radius: 20px; font-size: 11px; color: #818cf8; margin: 3px; }
+        .week-label { font-size: 10px; letter-spacing: 3px; color: #2dd4bf66; font-weight: 700; padding: 16px 0 10px; }
+      `}</style>
+
+      {/* Header */}
+      <div style={{
+        background: "linear-gradient(180deg, rgba(45,212,191,0.08) 0%, transparent 100%)",
+        padding: "40px 20px 24px",
+        textAlign: "center",
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
+      }}>
+        <div style={{ fontSize: 11, color: "#2dd4bf", letterSpacing: 5, marginBottom: 10, fontWeight: 700, opacity: 0.8 }}>
+          🩺 دكتور استشاري أمراض الجهاز الهضمي
+        </div>
+        <h1 style={{
+          fontSize: "clamp(22px, 5vw, 38px)", fontWeight: 900, margin: "0 0 6px",
+          background: "linear-gradient(135deg, #ffffff, #2dd4bf 60%, #0ea5e9)",
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.2,
+        }}>خطة المحتوى — 30 يوم</h1>
+        <p style={{ color: "#475569", fontSize: 13, margin: "0 0 22px" }}>
+          انقر على أي يوم للحصول على المحتوى الكامل، خطوات التنفيذ، الـ CTA، والكلمات المفتاحية
+        </p>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
+          {[
+            { icon: "📅", label: "منشور", value: "30" },
+            { icon: "🎬", label: "ريلز / فيديو", value: "11" },
+            { icon: "🎠", label: "كاروسيل", value: "12" },
+            { icon: "🧵", label: "ثريد", value: "4" },
+            { icon: "🔥", label: "متوسط الفيروسية", value: "91%" },
+          ].map(s => (
+            <div key={s.label} style={{
+              background: "rgba(45,212,191,0.06)", border: "1px solid rgba(45,212,191,0.15)",
+              borderRadius: 12, padding: "10px 14px", textAlign: "center", minWidth: 75
+            }}>
+              <div style={{ fontSize: 15 }}>{s.icon}</div>
+              <div style={{ fontSize: 17, fontWeight: 900, color: "#2dd4bf" }}>{s.value}</div>
+              <div style={{ fontSize: 9, color: "#475569", marginTop: 1 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+          {formats.map(f => (
+            <button key={f} className={`filter-btn ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>
+              {formatIcons[f] || "📌"} {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div style={{ padding: "18px 14px", maxWidth: 1120, margin: "0 auto" }}>
+        {[0, 1, 2, 3].map(week => {
+          const weekDays = filtered.filter(d => Math.floor((d.day - 1) / 7) === week);
+          if (!weekDays.length) return null;
+          return (
+            <div key={week} style={{ marginBottom: 18 }}>
+              <div className="week-label">◆ الأسبوع {week + 1}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(185px, 1fr))", gap: 10 }}>
+                {weekDays.map(d => {
+                  const fc = formatColors[d.format] || "#94a3b8";
+                  return (
+                    <div key={d.day} className={`day-card ${selected?.day === d.day ? "active" : ""}`}
+                      onClick={() => { setSelected(d); setTab("overview"); }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 7 }}>
+                        <span style={{ fontSize: 10, fontWeight: 900, color: "#050510", background: "linear-gradient(135deg,#2dd4bf,#0ea5e9)", borderRadius: 6, padding: "2px 8px" }}>يوم {d.day}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: fc, background: `${fc}15`, borderRadius: 6, padding: "2px 8px", border: `1px solid ${fc}35` }}>
+                          {formatIcons[d.format]} {d.format}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 10, color: "#475569", marginBottom: 3, fontWeight: 600 }}>{d.theme}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#e2e8f0", marginBottom: 7, lineHeight: 1.45 }}>{d.topic}</div>
+                      <div style={{ fontSize: 10, color: "#334155", marginBottom: 6 }}>🕐 {d.time} &nbsp;·&nbsp; 📱 {d.platform?.split("+")[0].trim()}</div>
+                      <div className="viral-bar">
+                        <div className="viral-fill" style={{
+                          width: `${d.viral}%`,
+                          background: d.viral >= 93 ? "linear-gradient(90deg,#f59e0b,#ef4444)" : d.viral >= 88 ? "linear-gradient(90deg,#2dd4bf,#3b82f6)" : "linear-gradient(90deg,#6366f1,#8b5cf6)"
+                        }} />
+                      </div>
+                      <div style={{ fontSize: 9, color: "#1e293b", marginTop: 3, display: "flex", justifyContent: "space-between" }}>
+                        <span>فيروسية</span>
+                        <span style={{ fontWeight: 800, color: d.viral >= 93 ? "#f59e0b88" : "#2dd4bf55" }}>{d.viral}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Modal */}
+      {selected && (
+        <div className="modal-overlay" onClick={() => setSelected(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+                <span style={{ background: "linear-gradient(135deg,#2dd4bf,#0ea5e9)", color: "#050510", borderRadius: 8, padding: "4px 11px", fontWeight: 900, fontSize: 12 }}>يوم {selected.day}</span>
+                <span style={{ background: `${formatColors[selected.format] || "#94a3b8"}18`, color: formatColors[selected.format] || "#94a3b8", border: `1px solid ${formatColors[selected.format] || "#94a3b8"}35`, borderRadius: 8, padding: "4px 10px", fontWeight: 700, fontSize: 11 }}>
+                  {formatIcons[selected.format]} {selected.format}
+                </span>
+                <span style={{ fontSize: 10, color: "#475569", fontWeight: 600 }}>{selected.theme}</span>
+              </div>
+              <button onClick={() => setSelected(null)} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#64748b", width: 28, height: 28, borderRadius: 7, cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+            </div>
+
+            <h2 style={{ fontSize: 17, fontWeight: 900, color: "#f1f5f9", lineHeight: 1.4, marginBottom: 14 }}>{selected.topic}</h2>
+
+            {/* Tabs */}
+            <div style={{ display: "flex", gap: 3, marginBottom: 14, background: "rgba(255,255,255,0.03)", borderRadius: 11, padding: 3 }}>
+              {[
+                { id: "overview", label: "نظرة عامة" },
+                { id: "content", label: "المحتوى الكامل" },
+                { id: "steps", label: "خطوات التنفيذ" },
+                { id: "seo", label: "SEO & CTA" },
+              ].map(t => (
+                <button key={t.id} className={`tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>{t.label}</button>
+              ))}
+            </div>
+
+            {tab === "overview" && (
+              <div>
+                <div className="info-box" style={{ background: "rgba(45,212,191,0.05)", border: "1px solid rgba(45,212,191,0.18)" }}>
+                  <div style={{ fontSize: 9, color: "#2dd4bf", fontWeight: 800, marginBottom: 6, letterSpacing: 1 }}>🪝 الهوك الافتتاحي</div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#e2e8f0", lineHeight: 1.7 }}>{selected.hook}</p>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 12 }}>
+                  {[
+                    { icon: "🕐", label: "أفضل وقت", val: selected.time, big: false },
+                    { icon: "🔥", label: "الفيروسية", val: `${selected.viral}%`, big: true, hot: selected.viral >= 93 },
+                    { icon: "📱", label: "المنصة", val: selected.platform?.split("+")[0].trim(), big: false },
+                  ].map((item, i) => (
+                    <div key={i} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 17 }}>{item.icon}</div>
+                      <div style={{ fontSize: 9, color: "#475569", marginTop: 3 }}>{item.label}</div>
+                      <div style={{ fontWeight: item.big ? 900 : 700, fontSize: item.big ? 18 : 11, color: item.hot ? "#f59e0b" : "#e2e8f0", marginTop: 2, lineHeight: 1.3 }}>{item.val}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="info-box" style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.18)" }}>
+                  <div style={{ fontSize: 9, color: "#818cf8", fontWeight: 800, marginBottom: 6, letterSpacing: 1 }}>💡 نصيحة المحترفين</div>
+                  <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.7 }}>{selected.tip}</p>
+                </div>
+              </div>
+            )}
+
+            {tab === "content" && (
+              <div>
+                <div className="info-box" style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.18)", marginBottom: 10 }}>
+                  <div style={{ fontSize: 9, color: "#10b981", fontWeight: 800, marginBottom: 8, letterSpacing: 1 }}>📄 هيكل المحتوى الكامل</div>
+                  <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.85 }}>{selected.content}</p>
+                </div>
+                <div className="info-box" style={{ background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.18)" }}>
+                  <div style={{ fontSize: 9, color: "#f59e0b", fontWeight: 800, marginBottom: 6, letterSpacing: 1 }}>📱 المنصات المقترحة</div>
+                  <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.6 }}>{selected.platform}</p>
+                </div>
+              </div>
+            )}
+
+            {tab === "steps" && (
+              <div>
+                <div style={{ fontSize: 9, color: "#2dd4bf", fontWeight: 800, marginBottom: 12, letterSpacing: 1 }}>🗂️ خطوات التنفيذ التفصيلية</div>
+                {selected.steps?.map((step, i) => (
+                  <div key={i} className="step-item">
+                    <div className="step-num">{i + 1}</div>
+                    <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.7 }}>{step}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {tab === "seo" && (
+              <div>
+                <div className="info-box" style={{ background: "rgba(236,72,153,0.06)", border: "1px solid rgba(236,72,153,0.2)", marginBottom: 10 }}>
+                  <div style={{ fontSize: 9, color: "#ec4899", fontWeight: 800, marginBottom: 8, letterSpacing: 1 }}>📣 نص الـ CTA</div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#f9a8d4", lineHeight: 1.7 }}>{selected.cta}</p>
+                </div>
+                <div className="info-box" style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.18)" }}>
+                  <div style={{ fontSize: 9, color: "#818cf8", fontWeight: 800, marginBottom: 10, letterSpacing: 1 }}>🔍 الكلمات المفتاحية والهاشتاقات</div>
+                  <div>{selected.keywords?.map((kw, i) => <span key={i} className="keyword-tag">#{kw.replace(/\s+/g, "_")}</span>)}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
